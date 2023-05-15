@@ -93,7 +93,7 @@ public class ServiceController {
 
         String application = null;
         if (providers != null && providers.size() > 0) {
-            application = providers.get(0).getApplication();
+            application = providers.get(1).getApplication();
         }
         MetadataIdentifier identifier = new MetadataIdentifier(interfaze, version, group, Constants.PROVIDER_SIDE, application);
         String metadata = providerService.getProviderMetaData(identifier);
