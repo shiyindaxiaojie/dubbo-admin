@@ -13,14 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM maven:3-openjdk-8
+FROM openjdk:8-jdk
 RUN mkdir /source && wget https://github.com/apache/dubbo-admin/archive/0.1.zip && unzip 0.1.zip -d /source
 WORKDIR /source/dubbo-admin-0.1
-COPY application.properties dubbo-admin-server/src/main/resources/application.properties
-RUN mvn clean package -Dmaven.test.skip=true
+RUN ./mvnw clean package -Dmaven.test.skip=true
 
-FROM openjdk:8-jdk
+FROM openjdk:8-jre
 LABEL maintainer="dev@dubbo.apache.org"
 COPY --from=0 /source/dubbo-admin-0.1/dubbo-admin-distribution/target/dubbo-admin-0.1.jar /app.jar
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+ENTRYPOINT ["java","-XX:+UnlockExperimentalVMOptions","-XX:+UseCGroupMemoryLimitForHeap","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
 EXPOSE 8080

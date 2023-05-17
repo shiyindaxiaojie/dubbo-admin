@@ -26,13 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class AdminServiceInstancesChangedListener extends ServiceInstancesChangedListener {
 
     private AddressChangeListener addressChangeListener;
 
-    private Map<String, List<ServiceInstancesChangedListener.ProtocolServiceKeyWithUrls>> oldServiceUrls;
+    private Map<String, Object> oldServiceUrls;
 
     public AdminServiceInstancesChangedListener(Set<String> serviceNames, ServiceDiscovery serviceDiscovery, AddressChangeListener addressChangeListener) {
         super(serviceNames, serviceDiscovery);
@@ -44,14 +43,8 @@ public class AdminServiceInstancesChangedListener extends ServiceInstancesChange
         oldServiceUrls.keySet().stream()
                 .filter(protocolServiceKey -> !serviceUrls.containsKey(protocolServiceKey))
                 .forEach(protocolServiceKey -> addressChangeListener.notifyAddressChanged(protocolServiceKey, new ArrayList<>()));
-        serviceUrls.forEach((protocolServiceKey, urls) -> addressChangeListener.notifyAddressChanged(protocolServiceKey, extractUrls(urls)));
+        serviceUrls.forEach((protocolServiceKey, urls) -> addressChangeListener.notifyAddressChanged(protocolServiceKey, (List<URL>) urls));
 
         oldServiceUrls = serviceUrls;
-    }
-
-    private List<URL> extractUrls(List<ServiceInstancesChangedListener.ProtocolServiceKeyWithUrls> keyUrls) {
-        return keyUrls.stream()
-                .flatMap((protocolServiceKeyWithUrls) -> protocolServiceKeyWithUrls.getUrls().stream())
-                .collect(Collectors.toList());
     }
 }

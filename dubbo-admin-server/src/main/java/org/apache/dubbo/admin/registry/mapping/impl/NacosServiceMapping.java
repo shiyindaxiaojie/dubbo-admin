@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.alibaba.nacos.api.PropertyKeyConst.NAMING_LOAD_CACHE_AT_START;
 import static org.apache.dubbo.common.constants.RegistryConstants.CONFIGURATORS_CATEGORY;
@@ -93,6 +94,15 @@ public class NacosServiceMapping implements ServiceMapping {
 
     @Override
     public void listenerAll() {
+
+        try {
+            anyServices = getAllServiceNames().stream().filter(this::filterApplication).collect(Collectors.toSet());
+        } catch (Exception e) {
+            LOGGER.error("Get nacos all services fail ", e);
+        }
+        for (String service : anyServices) {
+            notifyMappingChangedEvent(service);
+        }
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                 Set<String> serviceNames = getAllServiceNames();
@@ -105,7 +115,7 @@ public class NacosServiceMapping implements ServiceMapping {
                 LOGGER.error("Get nacos all services fail ", e);
             }
 
-        }, 0, LOOKUP_INTERVAL, TimeUnit.SECONDS);
+        }, LOOKUP_INTERVAL, LOOKUP_INTERVAL, TimeUnit.SECONDS);
     }
 
     private Set<String> getAllServiceNames() throws NacosException {
