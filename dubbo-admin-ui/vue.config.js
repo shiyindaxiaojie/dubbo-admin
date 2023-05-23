@@ -21,7 +21,7 @@ module.exports = {
   outputDir: "target/dist",
   lintOnSave: "warning",
   devServer: {
-    port: 8082,
+    port: 9080,
     historyApiFallback: {
       rewrites: [
         {from: /.*/, to: path.posix.join('/', 'index.html')},
